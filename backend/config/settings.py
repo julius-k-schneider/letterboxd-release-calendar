@@ -12,20 +12,25 @@ environ.Env.read_env(BASE_DIR / ".env")
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="dev-insecure-key")
 DEBUG = env("DEBUG")
 
-# Allow all hosts in production unless explicitly restricted via env.
-# Railway exposes the public hostname via RAILWAY_PUBLIC_DOMAIN.
-_default_hosts = "localhost,127.0.0.1"
-_railway_host = env("RAILWAY_PUBLIC_DOMAIN", default="")
-ALLOWED_HOSTS = [h.strip() for h in env("ALLOWED_HOSTS", default=_default_hosts).split(",") if h.strip()]
-if _railway_host:
-    ALLOWED_HOSTS.append(_railway_host)
-if not DEBUG and "*" not in ALLOWED_HOSTS and not ALLOWED_HOSTS:
-    ALLOWED_HOSTS = ["*"]
+# Hosts:
+#   - localhost / 127.0.0.1 for local dev
+#   - any *.up.railway.app subdomain (leading dot = wildcard in Django)
+#   - any *.railway.app for custom Railway domains
+#   - whatever Railway sets as RAILWAY_PUBLIC_DOMAIN
+#   - anything the user puts into ALLOWED_HOSTS env (comma-separated)
+_base_hosts = ["localhost", "127.0.0.1", ".up.railway.app", ".railway.app"]
+_env_hosts = [h.strip() for h in env("ALLOWED_HOSTS", default="").split(",") if h.strip()]
+_railway_host = env("RAILWAY_PUBLIC_DOMAIN", default="").strip()
+ALLOWED_HOSTS = _base_hosts + _env_hosts + ([_railway_host] if _railway_host else [])
 
-# Trust the Railway proxy for CSRF / HTTPS detection
-CSRF_TRUSTED_ORIGINS = [
-    f"https://{h}" for h in ALLOWED_HOSTS if h not in ("localhost", "127.0.0.1", "*")
-]
+# CSRF: trust HTTPS on every Railway subdomain + any explicit hosts.
+CSRF_TRUSTED_ORIGINS = ["https://*.up.railway.app", "https://*.railway.app"]
+for h in _env_hosts + ([_railway_host] if _railway_host else []):
+    if h.startswith("."):
+        CSRF_TRUSTED_ORIGINS.append(f"https://*{h}")
+    else:
+        CSRF_TRUSTED_ORIGINS.append(f"https://{h}")
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 TMDB_API_KEY = env("TMDB_API_KEY", default="")
