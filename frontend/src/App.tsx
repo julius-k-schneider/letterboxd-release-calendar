@@ -41,9 +41,17 @@ export default function App() {
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 } }}>
       <Stack spacing={1} sx={{ mb: 5 }}>
-        <Stack direction="row" alignItems="center" spacing={2}>
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          alignItems={{ xs: "flex-start", sm: "center" }}
+          spacing={{ xs: 1.5, sm: 2 }}
+        >
           <Logo />
-          <Typography variant="h3" component="h1">
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{ fontSize: { xs: "2.25rem", sm: "3rem" }, lineHeight: 1.15 }}
+          >
             Letterboxd Release Calendar
           </Typography>
         </Stack>
