@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Secrets — never commit
+backend/.env
+
+# Runtime data
+backend/db.sqlite3
+backend/db.sqlite3-journal
+backend/db.sqlite3-wal
+backend/db.sqlite3-shm
+backend/staticfiles/
+
+# Frontend build output / deps
+frontend/node_modules/
+frontend/dist/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

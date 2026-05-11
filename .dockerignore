@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.idea/
+.DS_Store
+
+# never bake secrets into the image
+backend/.env
+backend/db.sqlite3
+backend/staticfiles/
+
+frontend/node_modules/
+frontend/dist/
+
+# local plan + claude artifacts
+.claude/
+main.py
