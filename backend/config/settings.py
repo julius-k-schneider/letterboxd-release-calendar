@@ -87,7 +87,9 @@ STATICFILES_DIRS = [FRONTEND_DIST] if FRONTEND_DIST.exists() else []
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
+        # Vite already content-hashes filenames, so we just compress without
+        # re-hashing (avoids manifest mismatches against the built index.html).
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage" if not DEBUG else "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 WHITENOISE_INDEX_FILE = True
