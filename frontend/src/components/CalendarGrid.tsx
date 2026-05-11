@@ -25,6 +25,7 @@ export function CalendarGrid({ movies }: Props) {
   const groups = useMemo<Group[]>(() => {
     const map = new Map<string, Group>();
     for (const movie of movies) {
+      if (!movie.release_date) continue;
       const date = new Date(movie.release_date);
       const key = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
       if (!map.has(key)) {
