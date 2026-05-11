@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import requests
 from django.conf import settings
@@ -19,6 +19,11 @@ TYPE_DIGITAL = 4
 TYPE_PHYSICAL = 5
 TYPE_TV = 6
 HOME_TYPES = {TYPE_DIGITAL, TYPE_PHYSICAL, TYPE_TV}
+THEATRICAL_TYPES = {TYPE_THEATRICAL_LIMITED, TYPE_THEATRICAL}
+# Films released in cinemas anywhere more than this many months ago are treated
+# as "the distribution train has left" — they won't be picked up for a fresh
+# theatrical run in a new country. Recent foreign releases still count as TBA.
+STALE_THEATRICAL_MONTHS = 18
 SESSION = requests.Session()
 TIMEOUT = 10
 
@@ -136,6 +141,30 @@ def has_country_theatrical(movie: dict, country: str) -> bool:
             continue
         for rd in entry.get("release_dates", []):
             if rd.get("type") == TYPE_THEATRICAL and rd.get("release_date"):
+                return True
+    return False
+
+
+def has_stale_theatrical_anywhere(movie: dict) -> bool:
+    """True if the movie had a theatrical release anywhere more than
+    STALE_THEATRICAL_MONTHS ago. Used to drop films from 'TBA' that have
+    long been out in cinemas elsewhere — they won't get a fresh release
+    in a new country at this point.
+    """
+    today = timezone.now().date()
+    cutoff = today - timedelta(days=STALE_THEATRICAL_MONTHS * 30)
+    for entry in (movie.get("release_dates") or {}).get("results", []):
+        for rd in entry.get("release_dates", []):
+            if rd.get("type") not in THEATRICAL_TYPES:
+                continue
+            raw = rd.get("release_date")
+            if not raw:
+                continue
+            try:
+                parsed = datetime.fromisoformat(raw.replace("Z", "+00:00")).date()
+            except ValueError:
+                continue
+            if parsed < cutoff:
                 return True
     return False
 

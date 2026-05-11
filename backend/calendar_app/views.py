@@ -54,6 +54,8 @@ class CalendarView(APIView):
                 continue  # already released in this country
             if tmdb.is_available_at_home(movie):
                 continue  # already on streaming / disc / TV somewhere
+            if tmdb.has_stale_theatrical_anywhere(movie):
+                continue  # cinema release elsewhere is too old to ever come here
             undated.append(_serialize(movie, None))
 
         dated.sort(key=lambda x: x["release_date"])
