@@ -7,6 +7,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 import { CalendarGrid } from "./components/CalendarGrid";
+import { Logo } from "./components/Logo";
 import { MovieCard } from "./components/MovieCard";
 import { SearchForm } from "./components/SearchForm";
 import { Movie, fetchCalendar } from "./api";
@@ -40,9 +41,12 @@ export default function App() {
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 5, md: 8 } }}>
       <Stack spacing={1} sx={{ mb: 5 }}>
-        <Typography variant="h3" component="h1">
-          Letterboxd Release Calendar
-        </Typography>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Logo />
+          <Typography variant="h3" component="h1">
+            Letterboxd Release Calendar
+          </Typography>
+        </Stack>
         <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 560, pt: 1 }}>
           Upcoming theatrical releases from your Letterboxd watchlist, filtered by country and
           ordered by date.
